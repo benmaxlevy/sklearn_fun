@@ -1,7 +1,7 @@
 # dataset provided by: http://help.sentiment140.com/for-students
 
 import pandas as pd
-import multiprocessing
+import concurrent.futures
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
@@ -16,17 +16,19 @@ if __name__ == "__main__":
     X = df["tweet"].tolist()
     y = df["sentiment"].tolist()
 
+    # # preprocessing the dataset - spelling correction
+    # def pp(i):
+    #     # call spellcheck function and replace value with corrected value
+    #     X[i] = spellcheck(X[i])
 
-    # preprocessing the dataset - spelling correction
-    def pp(i):
-        # call spellcheck function and replace value with corrected value
-        X[i] = spellcheck(X[i])
+    # # multiprocessing spelling correction - takes way too long without
+    # with concurrent.futures.ProcessPoolExecutor() as e:
+    #     e.map(pp, range(len(X)))
 
-    # multiprocessing spelling correction - takes way too long without
-    pool = multiprocessing.Pool()
-    pool.map(pp, range(len(X)))
-    pool.join()
-    pool.close()
+    with concurrent.futures.ProcessPoolExecutor() as e:
+        for i, result in enumerate(e.map(spellcheck, X, chunksize=10)):
+            X[i] = result
+            print(result)
 
     vect = CountVectorizer(stop_words="english")
     X = vect.fit_transform(X)
