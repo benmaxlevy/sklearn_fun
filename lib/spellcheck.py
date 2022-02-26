@@ -1,6 +1,8 @@
 from spellchecker import SpellChecker
+
 if __name__ == "main":
     raise Exception("This file is not intended to be run directly")
+
 
 def spellcheck(text):
     # lowercase the text (even though the vectorizer will do it later)
