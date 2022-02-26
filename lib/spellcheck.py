@@ -15,5 +15,4 @@ def spellcheck(text):
         if word in misspelled:
             # if word is misspelled, replace it with correct word
             text = text.replace(word, spell.correction(word))
-            print(text)
     return text

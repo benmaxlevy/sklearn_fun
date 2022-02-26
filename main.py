@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report
 from lib.spellcheck import spellcheck
+from lib.abbreviationChecker import abbreviation_checker
 
 
 def main(dataset_path, abbreviation_path):
@@ -27,31 +28,15 @@ def main(dataset_path, abbreviation_path):
     abbreviations = abbreviation["abbreviation"].tolist()
     meanings = abbreviation["meaning"].tolist()
 
-    # plz move this to a file
-    def abbreviation_checker():
-        """
-        loop through X. for each word in X, check if it is in the abbreviation dictionary. if so, replace it with
-        the expanded word
-        """
-        # loop through X
-        for i in range(len(X)):
-            print(i)
-            # loop through each word in X
-            for j in range(len(X[i])):
-                if X[i][j] in abbreviations:
-                    # replace word with expanded word
-                    X[i] = X[i].replace(X[i][j], meanings[abbreviations.index(X[i][j])])
-
     #  multiprocessing spelling correction - takes way too long without - comment out to avoid absurd runtime
-    # with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
-    #     for i, result in enumerate(e.map(spellcheck, X, chunksize=10)):
-    #         X[i] = result
-    #         print(i)
+    with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
+        for i, result in enumerate(e.map(spellcheck, X, chunksize=10)):
+            X[i] = result
+            print(i)
 
     # multiprocessing abbreviation expansion - takes way too long without - comment out to avoid absurd runtime
-    with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
-        abbreviation_checker()
-        print("cool")
+    with concurrent.futures.ProcessPoolExecutor(os.cpu_count()) as e:
+        e.submit(abbreviation_checker, X=X, abbreviations=abbreviations, meanings=meanings)
 
     vect = CountVectorizer(stop_words="english")
     X = vect.fit_transform(X)
