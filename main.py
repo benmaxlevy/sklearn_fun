@@ -63,4 +63,4 @@ def main(dataset_path, abbreviation_path):
 
 
 if __name__ == "__main__":
-    print(main("dataset/training.1600000.processed.noemoticon.csv"))
+    print(main("dataset/training.1600000.processed.noemoticon.csv", "dataset/textslang.csv"))
