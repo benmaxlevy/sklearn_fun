@@ -49,6 +49,7 @@ def main(dataset_path, abbreviation_path):
 
     vect = CountVectorizer(stop_words="english")
     X = vect.fit_transform(X)
+
     # 70% training and 30% testing
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=109)
 
