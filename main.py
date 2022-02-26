@@ -27,25 +27,31 @@ def main(dataset_path, abbreviation_path):
     abbreviations = abbreviation["abbreviation"].tolist()
     meanings = abbreviation["meaning"].tolist()
 
-    #  multiprocessing spelling correction - takes way too long without - comment out to avoid absurd runtime
-    with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
-        for i, result in enumerate(e.map(spellcheck, X, chunksize=10)):
-            X[i] = result
-            print(result)
-
-    # multiprocessing abbreviation expansion - takes way too long without - comment out to avoid absurd runtime
-    with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
-        '''
+    # plz move this to a file
+    def abbreviation_checker():
+        """
         loop through X. for each word in X, check if it is in the abbreviation dictionary. if so, replace it with
         the expanded word
-        '''
+        """
         # loop through X
         for i in range(len(X)):
+            print(i)
             # loop through each word in X
             for j in range(len(X[i])):
                 if X[i][j] in abbreviations:
                     # replace word with expanded word
                     X[i] = X[i].replace(X[i][j], meanings[abbreviations.index(X[i][j])])
+
+    #  multiprocessing spelling correction - takes way too long without - comment out to avoid absurd runtime
+    # with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
+    #     for i, result in enumerate(e.map(spellcheck, X, chunksize=10)):
+    #         X[i] = result
+    #         print(i)
+
+    # multiprocessing abbreviation expansion - takes way too long without - comment out to avoid absurd runtime
+    with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
+        abbreviation_checker()
+        print("cool")
 
     vect = CountVectorizer(stop_words="english")
     X = vect.fit_transform(X)
