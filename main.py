@@ -1,6 +1,7 @@
 # training dataset provided by: http://help.sentiment140.com/for-students
 # text slang dataset converted by: https://www.convertcsv.com/html-table-to-csv.htm
 # text slang dataset provided by: https://www.convertcsv.com/html-table-to-csv.htm
+# text contraction dataset (dictionary) provided by: https://github.com/dipanjanS/text-analytics-with-python
 import os
 
 import pandas as pd
