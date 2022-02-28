@@ -36,7 +36,7 @@ def main(dataset_path, abbreviation_path):
             print(i)
 
     # multiprocessing abbreviation expansion - takes way too long without - comment out to avoid absurd runtime
-    with concurrent.futures.ProcessPoolExecutor(os.cpu_count()) as e:
+    with concurrent.futures.ProcessPoolExecutor() as e:
         e.submit(abbreviation_checker, X=X, abbreviations=abbreviations, meanings=meanings)
 
     vect = CountVectorizer(stop_words="english")
