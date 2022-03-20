@@ -1,13 +1,20 @@
-def abbreviation_checker(X, abbreviations, meanings):
+import pandas as pd
+
+# import the abbreviation dataset
+abbreviations = pd.read_csv("dataset/textslang.csv", encoding='latin-1',
+                            names=["abbreviation", "meaning"])
+abbreviations = dict(zip(abbreviations["abbreviation"], abbreviations["meaning"]))
+
+
+def abbreviation_checker(X):
     """
     loop through X. for each word in X, check if it is in the abbreviation dictionary. if so, replace it with
     the expanded word
     """
-    # loop through X
-    for i in range(len(X)):
-        print(i)
-        # loop through each word in X
-        for j in range(len(X[i])):
-            if X[i][j] in abbreviations:
-                # replace word with expanded word
-                X[i] = X[i].replace(X[i][j], meanings[abbreviations.index(X[i][j])])
+
+    words = X.split()
+    for j in range(len(words)):
+        if words[j].upper() in abbreviations:
+            words[j] = abbreviations[words[j].upper()]
+    X = ' '.join(words)
+    return X

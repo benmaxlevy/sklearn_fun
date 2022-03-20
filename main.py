@@ -12,22 +12,16 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report
 from lib.spellcheck import spellcheck
 from lib.abbreviationChecker import abbreviation_checker
+from lib.contractionChecker import contraction_checker
 
 
-def main(dataset_path, abbreviation_path):
+def main(dataset_path):
     # importing the dataset - only keeping sentiment and tweet columns
     df = pd.read_csv(dataset_path, encoding='latin-1',
                      names=["sentiment", "w", "x", "y", "z", "tweet"])[["sentiment", "tweet"]]
 
     X = df["tweet"].tolist()
     y = df["sentiment"].tolist()
-
-    # import the abbreviation dataset
-    abbreviation = pd.read_csv(abbreviation_path, encoding='latin-1',
-                               names=["abbreviation", "meaning"])
-
-    abbreviations = abbreviation["abbreviation"].tolist()
-    meanings = abbreviation["meaning"].tolist()
 
     #  multiprocessing spelling correction - takes way too long without - comment out to avoid absurd runtime
     with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
@@ -36,8 +30,17 @@ def main(dataset_path, abbreviation_path):
             print(i)
 
     # multiprocessing abbreviation expansion - takes way too long without - comment out to avoid absurd runtime
-    with concurrent.futures.ProcessPoolExecutor() as e:
-        e.submit(abbreviation_checker, X=X, abbreviations=abbreviations, meanings=meanings)
+    with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
+        # e.submit(abbreviation_checker, X=X, abbreviations=abbreviations, meanings=meanings)
+        for i, result in enumerate(e.map(abbreviation_checker, X, chunksize=10)):
+            print(i)
+            X[i] = result
+
+    # multiprocessing contraction expansion - takes way too long without - comment out to avoid absurd runtime
+    with concurrent.futures.ProcessPoolExecutor(os.cpu_count() - 12) as e:
+        for i, result in enumerate(e.map(contraction_checker, X, chunksize=10)):
+            print(i)
+            X[i] = result
 
     vect = CountVectorizer(stop_words="english")
     X = vect.fit_transform(X)
@@ -55,4 +58,4 @@ def main(dataset_path, abbreviation_path):
 
 
 if __name__ == "__main__":
-    print(main("dataset/training.1600000.processed.noemoticon.csv", "dataset/textslang.csv"))
+    print(main("dataset/training.1600000.processed.noemoticon.csv"))
